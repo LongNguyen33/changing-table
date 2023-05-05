@@ -1,58 +1,102 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div>
+    <el-button
+      type="success"
+      style="float: left; margin-bottom: 10px"
+      @click="showForm = true"
+      >Sort</el-button
+    >
+    <el-table :data="tableData" border style="width: 100%">
+      <el-table-column label="No." width="80" align="center">
+        <template slot-scope="{ $index }">
+          <span>{{ $index + 1 }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="date" label="Date" width="180"> </el-table-column>
+      <el-table-column prop="name" label="Name" width="180"> </el-table-column>
+      <el-table-column prop="address" label="Address"> </el-table-column>
+    </el-table>
+    <el-dialog v-if="showForm" title="Sort Form" :visible.sync="showForm">
+      <div>
+        <el-checkbox-group v-model="checkboxGroup1">
+          <el-checkbox-button v-for="name in names" :label="name" :key="name">{{
+            name
+          }}</el-checkbox-button>
+        </el-checkbox-group>
+        <span>Tuyến đường hiện tại: {{ names.join(" -> ") }}</span>
+        <br />
+        <span>Tuyến đường thay đổi: {{ checkboxGroup1.join(" -> ") }}</span>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="showForm = false">Cancel</el-button>
+        <el-button type="primary" @click="sortTable">Sort</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
+  name: "my-table",
+  data() {
+    return {
+      showForm: false,
+      tableData: [
+        {
+          date: "2016-05-03",
+          name: "Circle K",
+          address: "No. 189, Grove St, Los Angeles",
+        },
+        {
+          date: "2016-05-02",
+          name: "Starbuck",
+          address: "No. 189, Grove St, Los Angeles",
+        },
+        {
+          date: "2016-05-04",
+          name: "Charging Station",
+          address: "No. 189, Grove St, Los Angeles",
+        },
+        {
+          date: "2016-05-01",
+          name: "Phenikaa-X",
+          address: "No. 189, Grove St, Los Angeles",
+        },
+      ],
+      checkboxGroup1: [],
+    };
+  },
+  computed: {
+    names() {
+      return this.tableData.map((item) => item.name);
+    },
+  },
+  methods: {
+    sortTable() {
+      const filteredData = this.tableData.filter((item) =>
+        this.checkboxGroup1.includes(item.name)
+      );
+      filteredData.sort((a, b) => {
+        return (
+          this.checkboxGroup1.indexOf(a.name) -
+          this.checkboxGroup1.indexOf(b.name)
+        );
+      });
+      this.tableData = filteredData.concat(
+        this.tableData.filter(
+          (item) => !this.checkboxGroup1.includes(item.name)
+        )
+      );
+      this.showForm = false;
+      this.checkboxGroup1 = [];
+      this.$notify({
+        title: "Success",
+        message: "Changing route successfully!",
+        type: "success",
+      });
+    },
+  },
+};
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
+<style></style>
